@@ -1,6 +1,6 @@
 {
   "db_name": "SQLite",
-  "query": "\n        SELECT *\n        FROM systems\n        WHERE name LIKE ?\n        ",
+  "query": "\n        SELECT *\n        FROM systems\n        WHERE name LIKE ? OR custom_name LIKE ?\n        ",
   "describe": {
     "columns": [
       {
@@ -55,7 +55,7 @@
       }
     ],
     "parameters": {
-      "Right": 1
+      "Right": 2
     },
     "nullable": [
       false,
@@ -70,5 +70,5 @@
       true
     ]
   },
-  "hash": "51e99197eb918ba9849f524b9ab79c683bb202ec97d1aba98fd68a1c18027e5f"
+  "hash": "d42c571fbaa377c5893cd73a84e2b066bfce1e008c2f4aef58365c842d7c4ae4"
 }

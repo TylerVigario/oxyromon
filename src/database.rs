@@ -287,8 +287,9 @@ pub async fn find_systems_by_name_like(
         "
         SELECT *
         FROM systems
-        WHERE name LIKE ?
+        WHERE name LIKE ? OR custom_name LIKE ?
         ",
+        name,
         name,
     )
     .fetch_all(connection)
