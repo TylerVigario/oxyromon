@@ -321,10 +321,10 @@ impl CommonFile for CommonRomfile {
             sorted_path.push(compute_alpha_subfolder(&game.name));
         }
 
-        // arcade and jbfolder in subdirectories unless they are archives
-        if (system.arcade && !extension.map_or(false, |ext| ARCHIVE_EXTENSIONS.contains(&ext)))
-            || game.jbfolder
-        {
+        // one DAT entry = one folder: always nest under <game.name>/
+        // (arcade archives historically lived flat; keep that exception)
+        let is_archive_ext = extension.map_or(false, |ext| ARCHIVE_EXTENSIONS.contains(&ext));
+        if !(system.arcade && is_archive_ext) {
             sorted_path.push(&game.name);
         }
 
