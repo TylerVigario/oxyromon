@@ -210,7 +210,16 @@ pub async fn main(
                     );
                 }
                 games.dedup_by_key(|game| game.id);
-                prompt_for_games(games, cfg!(test))?
+                // Scriptable -g: exactly one match → auto-select. Multiple matches
+                // means the user's pattern is ambiguous; error rather than prompt.
+                if games.len() > 1 {
+                    bail!(
+                        "Ambiguous -g pattern matches {} games. Be more specific. Matches: {}",
+                        games.len(),
+                        games.iter().map(|g| g.name.as_str()).collect::<Vec<_>>().join(", ")
+                    );
+                }
+                prompt_for_games(games, true)?
             }
             None => find_full_games_by_system_id(connection, system.id).await,
         };
