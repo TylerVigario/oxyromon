@@ -1,3 +1,9 @@
+# 0.25.0
+
+## Features
+
+- Added the `GAME_SUBFOLDERS` per-system setting: each game is stored in a subfolder named after it, so a multi-file game's ROMs stay together (arcade archives excepted)
+
 # 0.24.0
 
 ## Features

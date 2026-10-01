@@ -261,4 +261,6 @@ mod test_missing;
 #[cfg(test)]
 mod test_orphans;
 #[cfg(test)]
+mod test_orphans_game_subfolders;
+#[cfg(test)]
 mod test_trashed;

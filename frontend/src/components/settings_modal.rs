@@ -15,11 +15,11 @@ use crate::api::{
 use crate::model::Setting;
 use crate::state::{
     ALL_REGIONS_KEY, ALL_REGIONS_SUBFOLDERS_KEY, AppState, DISCARD_FLAGS_KEY, DISCARD_RELEASES_KEY,
-    GROUP_SUBSYSTEMS_KEY, LANGUAGES_KEY, ONE_REGIONS_KEY, ONE_REGIONS_SUBFOLDERS_KEY,
-    PREFER_FLAGS_KEY, PREFER_FORMAT_CHOICES, PREFER_FORMAT_KEY, PREFER_PARENTS_KEY,
-    PREFER_REGIONS_CHOICES, PREFER_REGIONS_KEY, PREFER_VERSIONS_CHOICES, PREFER_VERSIONS_KEY,
-    ROM_DIRECTORY_KEY, STRICT_ONE_REGIONS_KEY, SUBFOLDER_SCHEMES_CHOICES, TMP_DIRECTORY_KEY,
-    split_list,
+    GAME_SUBFOLDERS_KEY, GROUP_SUBSYSTEMS_KEY, LANGUAGES_KEY, ONE_REGIONS_KEY,
+    ONE_REGIONS_SUBFOLDERS_KEY, PREFER_FLAGS_KEY, PREFER_FORMAT_CHOICES, PREFER_FORMAT_KEY,
+    PREFER_PARENTS_KEY, PREFER_REGIONS_CHOICES, PREFER_REGIONS_KEY, PREFER_VERSIONS_CHOICES,
+    PREFER_VERSIONS_KEY, ROM_DIRECTORY_KEY, STRICT_ONE_REGIONS_KEY, SUBFOLDER_SCHEMES_CHOICES,
+    TMP_DIRECTORY_KEY, split_list,
 };
 use crate::ui::{Modal, control_checked, control_value};
 
@@ -36,6 +36,7 @@ struct Local {
     prefer_parents: RwSignal<bool>,
     prefer_format: RwSignal<String>,
     group_subsystems: RwSignal<bool>,
+    game_subfolders: RwSignal<bool>,
     prefer_regions: RwSignal<String>,
     prefer_versions: RwSignal<String>,
     one_regions_subfolders: RwSignal<String>,
@@ -57,6 +58,7 @@ impl Local {
             prefer_parents: RwSignal::new(true),
             prefer_format: RwSignal::new(String::new()),
             group_subsystems: RwSignal::new(true),
+            game_subfolders: RwSignal::new(false),
             prefer_regions: RwSignal::new("none".to_string()),
             prefer_versions: RwSignal::new("none".to_string()),
             one_regions_subfolders: RwSignal::new("none".to_string()),
@@ -88,6 +90,7 @@ impl Local {
         self.prefer_format
             .set(find(PREFER_FORMAT_KEY).unwrap_or_default());
         self.group_subsystems.set(not_false(GROUP_SUBSYSTEMS_KEY));
+        self.game_subfolders.set(is_true(GAME_SUBFOLDERS_KEY));
         self.prefer_regions
             .set(find(PREFER_REGIONS_KEY).unwrap_or_else(|| "none".to_string()));
         self.prefer_versions
@@ -218,6 +221,12 @@ pub fn SettingsModal(
                             hint="Group subsystems in the main system directory (eg: PS3 DLCs and updates)"
                             value=local.group_subsystems
                             on_toggle=Callback::new(move |v| toggle(GROUP_SUBSYSTEMS_KEY, v))
+                        />
+                        <ToggleField
+                            label="Game Subfolders"
+                            hint="Store each game in a folder named after it, keeping multi-file games together (arcade archives excepted)"
+                            value=local.game_subfolders
+                            on_toggle=Callback::new(move |v| toggle(GAME_SUBFOLDERS_KEY, v))
                         />
                         <SelectField
                             label="1G1R Subfolders"

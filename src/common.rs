@@ -453,10 +453,12 @@ impl CommonFile for CommonRomfile {
             sorted_path.push(compute_alpha_subfolder(&game.name));
         }
 
-        // one DAT entry = one folder: always nest under <game.name>/
-        // (arcade archives historically lived flat; keep that exception)
-        let is_archive_ext = extension.is_some_and(|ext| ARCHIVE_EXTENSIONS.contains(&ext));
-        if !(system.arcade && is_archive_ext) {
+        // arcade and jbfolder in subdirectories unless they are archives, and every other
+        // game too when GAME_SUBFOLDERS is set, so a multi-file game stays together
+        if (system.arcade && !extension.is_some_and(|ext| ARCHIVE_EXTENSIONS.contains(&ext)))
+            || game.jbfolder
+            || (!system.arcade && get_bool(connection, "GAME_SUBFOLDERS", Some(system.id)).await)
+        {
             sorted_path.push(&game.name);
         }
 
@@ -864,6 +866,12 @@ mod test_path_chd_single_track;
 mod test_path_cso;
 #[cfg(test)]
 mod test_path_custom_extension;
+#[cfg(test)]
+mod test_path_game_subfolders;
+#[cfg(test)]
+mod test_path_game_subfolders_arcade_archive;
+#[cfg(test)]
+mod test_path_game_subfolders_system;
 #[cfg(test)]
 mod test_path_original;
 #[cfg(test)]

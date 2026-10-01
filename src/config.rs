@@ -63,6 +63,7 @@ pub enum ArcadeRomType {
 
 const BOOLEANS: &[&str] = &[
     "CHD_PARENTS",
+    "GAME_SUBFOLDERS",
     "GROUP_SUBSYSTEMS",
     "PREFER_PARENTS",
     "REGIONS_ONE_STRICT",

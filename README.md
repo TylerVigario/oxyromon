@@ -165,6 +165,7 @@ Available settings:
 - `REGIONS_ONE_SUBFOLDERS`: Sort 1G1R ROMs in subfolders, defaults to `none`, valid choices: `none`, `alpha`
 - `REGIONS_ONE_STRICT`: `true` will elect ROMs regardless of them being available, `false` will only elect available ROMs, defaults to `false`
 - `GROUP_SUBSYSTEMS`: Group all system variants in a single directory, defaults to `true`
+- `GAME_SUBFOLDERS`: Store each game in a subfolder named after it, which keeps a multi-file game's ROMs together, defaults to `false` (arcade archives stay as they are, one game per archive)
 - `CHD_CD_HUNK_SIZE`: The CHD hunk size in bytes for CDs, defaults to auto, valid range: `16-1048576`
 - `CHD_CD_COMPRESSION_ALGORITHMS`: The CHD compression algorithms for CDs, up to 4 can be specified, defaults to auto, valid choices: `none`, `cdfl`, `cdlz`, `cdzl`, `cdzs`
 - `CHD_DVD_HUNK_SIZE`: The CHD hunk size in bytes for DVDs, defaults to auto, valid range: `16-1048576`
