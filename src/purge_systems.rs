@@ -12,14 +12,24 @@ use std::path::Path;
 use std::time::Duration;
 
 pub fn subcommand() -> Command {
-    Command::new("purge-systems").about("Purge systems").arg(
-        Arg::new("EMPTY")
-            .short('e')
-            .long("empty")
-            .help("Only list empty systems for selection")
-            .required(false)
-            .action(ArgAction::SetTrue),
-    )
+    Command::new("purge-systems")
+        .about("Purge systems")
+        .arg(
+            Arg::new("EMPTY")
+                .short('e')
+                .long("empty")
+                .help("Only list empty systems for selection")
+                .required(false)
+                .action(ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::new("SYSTEM")
+                .short('s')
+                .long("system")
+                .help("Select systems by name")
+                .required(false)
+                .action(ArgAction::Append),
+        )
 }
 
 pub async fn main(
@@ -27,8 +37,12 @@ pub async fn main(
     matches: &ArgMatches,
     progress_bar: &ProgressBar,
 ) -> Result<()> {
-    let systems =
-        prompt_for_systems(connection, None, false, matches.get_flag("EMPTY"), false).await?;
+    let systems = match matches.get_many::<String>("SYSTEM") {
+        Some(system_names) => resolve_systems_by_name_like(connection, system_names).await,
+        None => {
+            prompt_for_systems(connection, None, false, matches.get_flag("EMPTY"), false).await?
+        }
+    };
     progress_bar.enable_steady_tick(Duration::from_millis(100));
     for system in systems {
         print_header(progress_bar, &format!("Purging \"{}\"", system.name));
