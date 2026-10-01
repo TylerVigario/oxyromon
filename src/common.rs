@@ -6,7 +6,6 @@ use super::generate_playlists::DISC_REGEX;
 use super::mimetype::*;
 use super::model::*;
 use super::progress::*;
-use super::prompt::prompt_for_games;
 use super::util::*;
 use anyhow::{Context, Result, bail};
 use clap::ArgMatches;
@@ -41,13 +40,26 @@ pub async fn select_games(
         Some(game_names) => {
             let mut games: Vec<Game> = vec![];
             for game_name in game_names {
-                games.append(
-                    &mut find_full_games_by_name_and_system_id(connection, game_name, system_id)
-                        .await,
-                );
+                let mut found =
+                    find_full_games_by_name_and_system_id(connection, game_name, system_id).await;
+                // Scriptable -g: a pattern selects its single match without prompting,
+                // and a pattern matching several games is ambiguous, so it fails.
+                if found.len() > 1 {
+                    bail!(
+                        "Ambiguous game pattern \"{}\" matches {} games: {}",
+                        game_name,
+                        found.len(),
+                        found
+                            .iter()
+                            .map(|game| game.name.as_str())
+                            .collect::<Vec<&str>>()
+                            .join(", ")
+                    );
+                }
+                games.append(&mut found);
             }
             games.dedup_by_key(|game| game.id);
-            prompt_for_games(games, cfg!(test))?
+            games
         }
         None => find_full_games_by_system_id(connection, system_id).await,
     };
