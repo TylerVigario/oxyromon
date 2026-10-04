@@ -86,7 +86,7 @@ pub async fn main(
 
 /// The directories a purge may empty but never removes: the ROM directories,
 /// every system directory and every Trash directory.
-async fn kept_directories(connection: &mut SqliteConnection) -> Result<HashSet<PathBuf>> {
+pub async fn kept_directories(connection: &mut SqliteConnection) -> Result<HashSet<PathBuf>> {
     let mut kept = HashSet::new();
     let rom_directory = get_rom_directory(connection).await;
     kept.insert(rom_directory.join("Trash"));
@@ -107,7 +107,7 @@ async fn kept_directories(connection: &mut SqliteConnection) -> Result<HashSet<P
 /// that folder behind. Removes empty directories from the file's parent
 /// upwards, stopping at the first kept, non-empty or missing one, and never
 /// leaving the ROM directories.
-async fn remove_empty_parents(
+pub async fn remove_empty_parents(
     progress_bar: &ProgressBar,
     file: &Path,
     kept: &HashSet<PathBuf>,

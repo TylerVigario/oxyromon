@@ -4,6 +4,7 @@ use super::import_roms::{UnattendedMode, import_rom};
 use super::mimetype::*;
 use super::model::*;
 use super::progress::*;
+use super::purge_roms::{kept_directories, remove_empty_parents};
 use super::util::*;
 use anyhow::{Context, Result, anyhow};
 use clap::value_parser;
@@ -19,6 +20,7 @@ use shiratsu_naming::naming::nointro::{NoIntroName, NoIntroToken};
 use shiratsu_naming::naming::tosec::{TOSECName, TOSECToken};
 use shiratsu_naming::region::Region;
 use sqlx::sqlite::SqliteConnection;
+use std::collections::HashSet;
 use std::io;
 use std::path::Path;
 use std::path::PathBuf;
@@ -884,6 +886,8 @@ pub async fn reimport_orphan_romfiles(
 ) -> Result<()> {
     let system = find_system_by_id(connection, system_id).await;
     let header = find_header_by_system_id(connection, system_id).await;
+    // every reimported file leaves its directory, for its game's new place or the trash
+    let mut left_files: HashSet<PathBuf> = HashSet::new();
     for romfile_id in orphan_romfile_ids {
         let romfile = find_romfile_by_id(connection, romfile_id)
             .await
@@ -891,6 +895,7 @@ pub async fn reimport_orphan_romfiles(
             .await?;
         delete_romfile_by_id(connection, romfile_id).await;
         if romfile.path.is_file() {
+            left_files.insert(romfile.path.clone());
             let (_, game_ids) = import_rom(
                 connection,
                 progress_bar,
@@ -914,6 +919,12 @@ pub async fn reimport_orphan_romfiles(
                     .create(connection, progress_bar, RomfileType::Romfile)
                     .await?;
             }
+        }
+    }
+    if !left_files.is_empty() {
+        let kept = kept_directories(connection).await?;
+        for path in &left_files {
+            remove_empty_parents(progress_bar, path, &kept).await?;
         }
     }
     Ok(())
@@ -1058,6 +1069,8 @@ mod test_dat_updated_orphan_archive_mismatch;
 mod test_dat_updated_orphan_chd;
 #[cfg(test)]
 mod test_dat_updated_orphan_chd_mismatch;
+#[cfg(test)]
+mod test_dat_updated_renamed_subfolder;
 #[cfg(test)]
 mod test_regions_france_germany;
 #[cfg(test)]
