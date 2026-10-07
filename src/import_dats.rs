@@ -923,8 +923,11 @@ pub async fn reimport_orphan_romfiles(
     }
     if !left_files.is_empty() {
         let kept = kept_directories(connection).await?;
+        // Only cosmetic: a directory that cannot be deleted must not undo the moves above
         for path in &left_files {
-            remove_empty_parents(progress_bar, path, &kept).await?;
+            if let Err(err) = remove_empty_parents(progress_bar, path, &kept).await {
+                print_warning(progress_bar, &format!("{:#}", err));
+            }
         }
     }
     Ok(())
